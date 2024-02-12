@@ -37,6 +37,5 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          dir
           huggingface-cli login --token ${HF_TOKEN}
-          huggingface-cli upload ${HF_USER}/${HF_DATASET} ${HF_DATASET}/boletin-oficial-argentina.jsonl --repo-type=dataset --commit-message="Update from Github actions"
+          huggingface-cli upload ${HF_USER}/${HF_DATASET} ${HF_DATASET}/boletin-oficial-argentina.jsonl --repo-type=dataset --commit-message="Daily update from Github actions"
