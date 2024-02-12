@@ -31,7 +31,7 @@ jobs:
       - name: Update dataset
         run: |
           cd ${HF_DATASET}
-          python update_hf_dataset.py
+          python ../update_hf_dataset.py
         
       - name: Commit changes to Hugging Face Hub
         env:
