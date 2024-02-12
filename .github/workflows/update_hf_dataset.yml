@@ -22,7 +22,7 @@ jobs:
           pip install bs4
 
       - name: Clone dataset
-        run: 
+        run: |
           git clone https://huggingface.co/datasets/${HF_USER}/${HF_DATASET}
           cd ${HF_DATASET}
 
