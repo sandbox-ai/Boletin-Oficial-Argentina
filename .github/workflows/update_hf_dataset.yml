@@ -38,5 +38,5 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           cd ${HF_DATASET}
-          huggingface-cli login --api-token ${HF_TOKEN}
+          huggingface-cli login --token ${HF_TOKEN}
           huggingface-cli upload ${HF_USER}/${HF_DATASET} --repo-type=dataset 'boletin-oficial-argentina.jsonl'
