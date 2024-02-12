@@ -28,6 +28,6 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          export DATASET_NAME=${HF_DATASET}
+          cd ${HF_DATASET}
           huggingface-cli login --api-token ${HF_TOKEN}
-          huggingface-cli upload ${HF_USER}/${HF_DATASET} --repo-type=dataset --local_path './dataset_repo/boletin-oficial-argentina.jsonl' 'boletin-oficial-argentina.jsonl'
+          huggingface-cli upload ${HF_USER}/${HF_DATASET} --repo-type=dataset 'boletin-oficial-argentina.jsonl'
