@@ -9,9 +9,6 @@ HF_DATASET = os.getenv('HF_DATASET')
 REPO_PATH = f"{HF_USER}/{HF_DATASET}"
 DATASET_FILE = 'boletin-oficial-argentina.jsonl'
 
-# Clone the dataset repository
-subprocess.run(['git', 'clone', f'https://huggingface.co/datasets/{REPO_PATH}', HF_DATASET], check=True)
-
 # Update the dataset
 scrapper = Scrapper()
 update(scrapper, DATASET_FILE)
