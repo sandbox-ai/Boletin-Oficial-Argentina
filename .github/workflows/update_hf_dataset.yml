@@ -9,8 +9,8 @@ jobs:
   update-dataset:
     runs-on: ubuntu-latest
     env:
-      HF_USER: ${{ env.HF_USER }}
-      HF_DATASET: ${{ env.HF_DATASET }}
+      HF_USER: ${{ HF_USER }}
+      HF_DATASET: ${{ HF_DATASET }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
