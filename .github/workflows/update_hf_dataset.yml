@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install bs4
+          pip install bs4 requests
 
       - name: Clone dataset
         run: |
