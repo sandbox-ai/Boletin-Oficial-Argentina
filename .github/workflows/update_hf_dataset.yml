@@ -22,19 +22,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install bs4 requests
+          pip install bs4 requests huggingface_hub
 
       - name: Clone dataset
         run: |
           git clone https://huggingface.co/datasets/${HF_USER}/${HF_DATASET}
-          cd ${HF_DATASET}
 
       - name: Update dataset
-        run: python update_hf_dataset.py
+        run: |
+          cd ${HF_DATASET}
+          python update_hf_dataset.py
         
       - name: Commit changes to Hugging Face Hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          cd ${HF_DATASET}
           huggingface-cli login --api-token ${HF_TOKEN}
           huggingface-cli upload ${HF_USER}/${HF_DATASET} --repo-type=dataset 'boletin-oficial-argentina.jsonl'
