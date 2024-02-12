@@ -8,6 +8,9 @@ on:
 jobs:
   update-dataset:
     runs-on: ubuntu-latest
+    env:
+      HF_USER: ${{ env.HF_USER }}
+      HF_DATASET: ${{ env.HF_DATASET }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -23,8 +26,8 @@ jobs:
 
       - name: Clone dataset
         run: |
-          git clone https://huggingface.co/datasets/${{env.HF_USER}}/${{env.HF_DATASET}}
-          cd ${{env.HF_DATASET}}
+          git clone https://huggingface.co/datasets/${HF_USER}/${HF_DATASET}
+          cd ${HF_DATASET}
 
       - name: Update dataset
         run: python update_hf_dataset.py
@@ -34,4 +37,4 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           huggingface-cli login --api-token ${HF_TOKEN}
-          huggingface-cli upload ${{env.HF_USER}}/${{env.HF_DATASET}} --repo-type=dataset 'boletin-oficial-argentina.jsonl'
+          huggingface-cli upload ${HF_USER}/${HF_DATASET} --repo-type=dataset 'boletin-oficial-argentina.jsonl'
