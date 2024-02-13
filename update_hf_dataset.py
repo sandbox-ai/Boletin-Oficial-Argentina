@@ -3,7 +3,8 @@ import subprocess
 from dataset_utils import update
 from scrapper import Scrapper
 
-# ConfigurationDATASET_FILE = 'boletin-oficial-argentina.jsonl'
+# Configuration
+DATASET_FILE = 'boletin-oficial-argentina.jsonl'
 
 # Update the dataset
 scrapper = Scrapper()
