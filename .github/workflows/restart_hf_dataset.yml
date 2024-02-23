@@ -1,4 +1,4 @@
-name: Update HuggingFace Dataset
+name: Rebuild HuggingFace Dataset
 
 on:
   workflow_dispatch:
