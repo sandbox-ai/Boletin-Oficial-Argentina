@@ -94,7 +94,7 @@ class Scrapper:
                     return None
 
                 soup = BeautifulSoup(response.content, 'html.parser')
-                entity = soup.find('small').text.strip() if soup.find('small') else ''
+                entity = soup.find('p', class_='lead m-b-0').find('small').text.strip() if soup.find('p', class_='lead m-b-0') and soup.find('p', class_='lead m-b-0').find('small') else ''
                 title = soup.find('h2', class_='h5').text.strip() if soup.find('h2', class_='h5') else ''
                 name = soup.find('h1', class_='h5').text.strip() if soup.find('h1', class_='h5') else ''
 
@@ -112,7 +112,7 @@ class Scrapper:
                     content = soup.find('article').text.strip()
                 date = entry['fecha']
 
-                return {'title': title, 'name': name, 'entity': entity, 'content': content, 'date': date}
+                return {'title': title, 'name': name, 'entity': entity, 'content': content, 'date': date, 'url':url.split('argentina.gob.ar')[1]}
             except requests.exceptions.Timeout:
                 if attempt + 1 == self.max_retries:
                     break
