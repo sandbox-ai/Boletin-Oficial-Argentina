@@ -26,11 +26,10 @@ jobs:
         run: |
           git clone https://huggingface.co/datasets/${HF_USER}/${HF_DATASET}
 
-      - name: Update dataset
+      - name: Rebuild dataset
         run: |
-          cd ${HF_DATASET}
-          rm boletin-oficial-argentina.jsonl
-          python -c "from scrapper import Scrapper;from dataset_utils import create;scrapper=Scrapper();create(scrapper, 'boletin-oficial-argentina.jsonl')"
+          rm ${HF_DATASET}/boletin-oficial-argentina.jsonl
+          python -c "from scrapper import Scrapper;from dataset_utils import create;scrapper=Scrapper();create(scrapper, '${HF_DATASET}/boletin-oficial-argentina.jsonl')"
         
       - name: Commit changes to Hugging Face Hub
         env:
