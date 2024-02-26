@@ -51,5 +51,12 @@ update(scrapper, dataset_file)
 El dataset producido es un JSONL con el siguiente formato:
 
 ```json
-{"title":"Título resumido de la entrada", "name":"Nombre asignado", "entity":"Entidad gubernamental que la emite", "content":"Contenido de la entrada", "date":"Fecha publicada"}
+{
+  "title":"Título resumido de la entrada",
+  "name":"Nombre asignado",
+  "entity":"Entidad gubernamental que la emite",
+  "content":"Contenido de la entrada",
+  "date":"Fecha publicada",
+  "url":"url relativa"
+}
 ```
