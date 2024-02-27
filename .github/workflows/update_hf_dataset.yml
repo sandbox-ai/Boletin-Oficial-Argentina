@@ -30,8 +30,7 @@ jobs:
 
       - name: Update dataset
         run: |
-          cd ${HF_DATASET}
-          python -c "from scrapper import Scrapper;from dataset_utils import update;scrapper=Scrapper();update(scrapper, 'boletin-oficial-argentina.jsonl')"
+          python -c "from scrapper import Scrapper;from dataset_utils import create;scrapper=Scrapper();create(scrapper, '${HF_DATASET}/boletin-oficial-argentina.jsonl')"
         
       - name: Commit changes to Hugging Face Hub
         env:
