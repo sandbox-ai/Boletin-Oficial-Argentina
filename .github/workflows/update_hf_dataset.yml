@@ -31,7 +31,6 @@ jobs:
       - name: Update dataset
         run: |
           cd ${HF_DATASET}
-          python ../update_hf_dataset.py
           python -c "from scrapper import Scrapper;from dataset_utils import update;scrapper=Scrapper();update(scrapper, 'boletin-oficial-argentina.jsonl')"
         
       - name: Commit changes to Hugging Face Hub
