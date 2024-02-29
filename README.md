@@ -60,3 +60,9 @@ El dataset producido es un JSONL con el siguiente formato:
   "url":"url relativa"
 }
 ```
+
+## [Dataset en Huggingface🤗](https://huggingface.co/datasets/marianbasti/boletin-oficial-argentina)
+Actualizada diariamente
+
+Estado de la última actualizacion: 
+[![Update HuggingFace Dataset](https://github.com/sandbox-ai/Boletin-Oficial-Argentina/actions/workflows/update_hf_dataset.yml/badge.svg)](https://github.com/sandbox-ai/Boletin-Oficial-Argentina/actions/workflows/update_hf_dataset.yml)
