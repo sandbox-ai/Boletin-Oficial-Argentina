@@ -11,29 +11,18 @@ from datetime import datetime
 import time
 from typing import List, Dict, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class Scrapper:
     def __init__(self, max_retries: int = 5, retry_sleep: int = 10) -> None:
-        """
-        Initialize the Scrapper class with optional max retries and retry sleep parameters.
-
-        Args:
-        max_retries: (optional) Maximum number of retries for HTTP requests.
-        retry_sleep: (optional) Seconds to wait between retries.
-        """
         self.max_retries = max_retries
         self.retry_sleep = retry_sleep
+        logging.info("Scrapper initialized with max_retries=%s and retry_sleep=%s", max_retries, retry_sleep)
 
     def fetch_urls_for_date(self, date: datetime) -> List[Dict[str, str]]:
-        """
-        Fetch URLs for a given date from the specified website.
-
-        Args:
-        date: The date for which to fetch URLs.
-        
-        Returns:
-        A list of dictionaries, each containing URL and related data.
-        """
         formatted_date = date.strftime("%Y-%m-%d")
         urls = []
         pagina = 1
@@ -45,18 +34,18 @@ class Scrapper:
             'limit': '50',
             'offset': pagina,
         }
+        logging.info("Fetching URLs for date: %s", formatted_date)
 
         while True:
-            response = requests.get(
-                'https://www.argentina.gob.ar/normativa/busqueda-avanzada',
-                params=params,
-            )
+            response = requests.get('https://www.argentina.gob.ar/normativa/busqueda-avanzada', params=params)
             if response.status_code != 200:
+                logging.warning("Failed to fetch data with status code: %s", response.status_code)
                 break
 
             soup = BeautifulSoup(response.content, 'html.parser')
             rows = soup.find_all('tr', class_='panel')
             if not rows:
+                logging.info("No more rows found, ending URL fetch.")
                 break
 
             for row in rows:
@@ -70,54 +59,54 @@ class Scrapper:
                             'fecha': formatted_date,
                             'descripcion': descripcion_cell.text.strip()
                         })
-
             pagina += 1
             params['offset'] = pagina
 
+        logging.info("Total URLs fetched: %s", len(urls))
         return urls
 
     def fetch_content(self, entry: Dict[str, str]) -> Optional[Dict[str, str]]:
-        """
-        Fetch content for a given entry (URL and related data).
-
-        Args:
-        entry: A dictionary containing URL and related data.
-
-        Returns:
-        A dictionary with fetched content or None if an error occurs.
-        """
+        logging.info("Fetching content for URL: %s", entry['url'])
         for attempt in range(self.max_retries):
             try:
-                url = entry['url']
-                response = requests.get(url)
+                response = requests.get(entry['url'])
                 if response.status_code != 200:
+                    logging.warning("Failed to fetch content for URL: %s with status code: %s", entry['url'], response.status_code)
                     return None
 
                 soup = BeautifulSoup(response.content, 'html.parser')
                 entity = soup.find('p', class_='lead m-b-0').find('small').text.strip() if soup.find('p', class_='lead m-b-0') and soup.find('p', class_='lead m-b-0').find('small') else ''
                 title = soup.find('h2', class_='h5').text.strip() if soup.find('h2', class_='h5') else ''
                 name = soup.find('h1', class_='h5').text.strip() if soup.find('h1', class_='h5') else ''
+                summary = soup.find('article').text.strip() if soup.find('article') else ''
 
-                content_link = soup.find('a', class_='btn btn-link')
-                content_url = f"https://www.argentina.gob.ar{content_link['href']}" if content_link and 'href' in content_link.attrs else ''
+                content_links = [a['href'] for a in soup.find_all('a', href=True) if '/actualizacion' in a['href'] or '/texto' in a['href']]
+                chosen_link = next((link for link in content_links if '/actualizacion' in link), content_links[0] if content_links else None)
+                urls_in_article = []
 
-                content = ''
-                if content_url:
-                    content_response = requests.get(content_url)
-                    if content_response.status_code == 200:
-                        content_soup = BeautifulSoup(content_response.content, 'html.parser')
-                        content_article = content_soup.find('article')
-                        content = content_article.text.strip() if content_article else ''
+                full_text = ''
+                if chosen_link:
+                    chosen_response = requests.get(f"https://www.argentina.gob.ar{chosen_link}")
+                    if chosen_response.status_code == 200:
+                        chosen_soup = BeautifulSoup(chosen_response.content, 'html.parser')
+                        article = chosen_soup.find('article')
+                        if article:
+                            urls_in_article = [a['href'] for a in article.find_all('a', href=True)]
+                            full_text = article.text.strip()
+                        else:
+                            full_text = ''
                 else:
-                    content = soup.find('article').text.strip()
-                date = entry['fecha']
+                    full_text = summary  # Use summary if no specific URL was found or navigated to.
 
-                return {'title': title, 'name': name, 'entity': entity, 'content': content, 'date': date, 'url':url.split('argentina.gob.ar')[1]}
+                return {'title': title, 'name': name, 'entity': entity, 'summary': summary, 'full_text': full_text, 'url_in_articles':urls_in_article, 'date': entry['fecha'], 'url': entry['url'].split('argentina.gob.ar')[1]}
             except requests.exceptions.Timeout:
+                logging.warning("Timeout occurred for URL: %s (Attempt %s/%s)", entry['url'], attempt + 1, self.max_retries)
                 if attempt + 1 == self.max_retries:
+                    logging.error("Max retries reached for URL: %s", entry['url'])
                     break
                 time.sleep(self.retry_sleep)
-            except requests.exceptions.RequestException:
+            except requests.exceptions.RequestException as e:
+                logging.error("Request exception for URL: %s: %s", entry['url'], str(e))
                 break
         return None
 

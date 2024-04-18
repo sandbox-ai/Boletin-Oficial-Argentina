@@ -55,7 +55,9 @@ El dataset producido es un JSONL con el siguiente formato:
   "title":"Título resumido de la entrada",
   "name":"Nombre asignado",
   "entity":"Entidad gubernamental que la emite",
-  "content":"Contenido de la entrada",
+  "summary":"Resumen de la entrada",
+  "full_text":"Contenido completo",
+  "url_in_articles":"URLs encontradas en la entrada",
   "date":"Fecha publicada",
   "url":"url relativa"
 }
