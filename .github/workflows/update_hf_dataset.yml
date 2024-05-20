@@ -11,6 +11,7 @@ jobs:
     env:
       HF_USER: ${{ vars.HF_USER }}
       HF_DATASET: ${{ vars.HF_DATASET }}
+      GIT_CLONE_PROTECTION_ACTIVE: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
