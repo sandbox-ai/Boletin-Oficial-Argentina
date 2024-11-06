@@ -3,6 +3,7 @@ Código para la creación y actualización de un dataset conformado por la total
 
 El JSON resultante (al día de 18/12/2023) tiene un tamaño de 1.57Gb
 
+
 ## Instalación
 Instalamos BeautifulSoup para manipular el contenido HTML de la web
 
