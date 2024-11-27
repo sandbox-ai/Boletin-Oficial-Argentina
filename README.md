@@ -1,8 +1,6 @@
 # Boletin-Oficial-Argentina
 Código para la creación y actualización de un dataset conformado por la totalidad de la legislación nacional, accesible a través de https://www.argentina.gob.ar/normativa/
 
-El JSON resultante (al día de 18/12/2023) tiene un tamaño de 1.57Gb
-
 
 ## Instalación
 Instalamos BeautifulSoup para manipular el contenido HTML de la web
