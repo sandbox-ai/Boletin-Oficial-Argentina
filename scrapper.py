@@ -20,6 +20,9 @@ class Scrapper:
     def __init__(self, max_retries: int = 5, retry_sleep: int = 10) -> None:
         self.max_retries = max_retries
         self.retry_sleep = retry_sleep
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
         logging.info("Scrapper initialized with max_retries=%s and retry_sleep=%s", max_retries, retry_sleep)
 
     def fetch_urls_for_date(self, date: datetime) -> List[Dict[str, str]]:
@@ -37,28 +40,32 @@ class Scrapper:
         logging.info("Fetching URLs for date: %s", formatted_date)
 
         while True:
-            response = requests.get('https://www.argentina.gob.ar/normativa/busqueda-avanzada', params=params)
+            response = requests.get('https://www.argentina.gob.ar/normativa/busqueda-avanzada', params=params, headers=self.headers)
             if response.status_code != 200:
                 logging.warning("Failed to fetch data with status code: %s", response.status_code)
                 break
 
             soup = BeautifulSoup(response.content, 'html.parser')
-            rows = soup.find_all('tr', class_='panel')
-            if not rows:
+            table = soup.find('table')
+            if not table:
+                logging.warning("No table found on page")
+                break
+            rows = table.find_all('tr')
+            if not rows or len(rows) <= 1:
                 logging.info("No more rows found, ending URL fetch.")
                 break
 
-            for row in rows:
-                numero_cell = row.find('td', class_='numero')
-                descripcion_cell = row.find('td', class_='descripcion')
-                if numero_cell and descripcion_cell:
-                    link_tag = numero_cell.find('a')
-                    if link_tag and 'href' in link_tag.attrs:
-                        urls.append({
-                            'url': f"https://www.argentina.gob.ar{link_tag['href']}",
-                            'fecha': formatted_date,
-                            'descripcion': descripcion_cell.text.strip()
-                        })
+            for row in rows[1:]:
+                cells = row.find_all('td')
+                if len(cells) < 3:
+                    continue
+                link_tag = cells[0].find('a')
+                if link_tag and 'href' in link_tag.attrs:
+                    urls.append({
+                        'url': f"https://www.argentina.gob.ar{link_tag['href']}",
+                        'fecha': formatted_date,
+                        'descripcion': cells[2].text.strip()
+                    })
             pagina += 1
             params['offset'] = pagina
 
@@ -69,7 +76,7 @@ class Scrapper:
         logging.info("Fetching content for URL: %s", entry['url'])
         for attempt in range(self.max_retries):
             try:
-                response = requests.get(entry['url'])
+                response = requests.get(entry['url'], headers=self.headers)
                 if response.status_code != 200:
                     logging.warning("Failed to fetch content for URL: %s with status code: %s", entry['url'], response.status_code)
                     return None
@@ -86,7 +93,7 @@ class Scrapper:
 
                 full_text = ''
                 if chosen_link:
-                    chosen_response = requests.get(f"https://www.argentina.gob.ar{chosen_link}")
+                    chosen_response = requests.get(f"https://www.argentina.gob.ar{chosen_link}", headers=self.headers)
                     if chosen_response.status_code == 200:
                         chosen_soup = BeautifulSoup(chosen_response.content, 'html.parser')
                         article = chosen_soup.find('article')
